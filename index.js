@@ -116,6 +116,11 @@ servidor.get('/', autenticarSessao, (req, res) => {
 
 // Página de registro
 servidor.get('/registrar', autenticarSessao, (req, res) => {
+    // Gera a lista de usuários já cadastrados
+    const listaDeUsuarios = baseDeUsuarios
+        .map(user => `<li>${user.apelido} (${user.nome})</li>`)
+        .join('');
+
     res.send(`
         <!DOCTYPE html>
         <html>
@@ -142,6 +147,21 @@ servidor.get('/registrar', autenticarSessao, (req, res) => {
                     padding: 10px;
                     width: 80%;
                 }
+                ul {
+                    margin: 20px auto;
+                    padding: 0;
+                    list-style-type: none;
+                }
+                li {
+                    background: #f9f9f9;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    margin: 5px 0;
+                    text-align: left;
+                    width: 80%;
+                    display: inline-block;
+                }
                 a {
                     display: block;
                     margin: 10px auto;
@@ -159,11 +179,16 @@ servidor.get('/registrar', autenticarSessao, (req, res) => {
                 <input type="number" name="idade" placeholder="Sua idade" required min="1" />
                 <button type="submit">Registrar</button>
             </form>
+            <h3>Usuários cadastrados:</h3>
+            <ul>
+                ${listaDeUsuarios}
+            </ul>
             <a href="/">Voltar</a>
         </body>
         </html>
     `);
 });
+
 
 // Processa o registro
 servidor.post('/adicionarUsuario', autenticarSessao, (req, res) => {
