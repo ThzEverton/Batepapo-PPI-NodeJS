@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 
 const servidor = express();
-const portaServidor = 4000;
+const portaServidor = 3000;
 
 // Configuração do middleware
 servidor.use(session({
