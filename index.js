@@ -113,7 +113,6 @@ servidor.get('/', autenticarSessao, (req, res) => {
         </html>
     `);
 });
-
 // Página de registro
 servidor.get('/registrar', autenticarSessao, (req, res) => {
     res.send(`
@@ -140,6 +139,10 @@ servidor.get('/registrar', autenticarSessao, (req, res) => {
                     display: block;
                     margin: 10px auto;
                     padding: 10px;
+                    width: 80%;
+                }
+                input:invalid {
+                    border-color: red;
                 }
                 a {
                     display: block;
@@ -147,13 +150,19 @@ servidor.get('/registrar', autenticarSessao, (req, res) => {
                     text-decoration: none;
                     color: #007bff;
                 }
+                .error-message {
+                    color: red;
+                    font-size: 0.9em;
+                }
             </style>
         </head>
         <body>
             <h2>Cadastro</h2>
             <form method="POST" action="/adicionarUsuario">
                 <input type="text" name="nome" placeholder="Seu nome" required />
+                <input type="text" name="apelido" placeholder="Seu apelido" required />
                 <input type="password" name="senha" placeholder="Senha" required />
+                <input type="number" name="idade" placeholder="Sua idade" required min="1" />
                 <button type="submit">Registrar</button>
             </form>
             <a href="/">Voltar</a>
