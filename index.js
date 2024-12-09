@@ -224,10 +224,10 @@ servidor.get('/chat', autenticarSessao, (req, res) => {
                 </div>
                 <form method="POST" action="/novaMensagem">
                     <label for="usuario">Selecionar usuário:</label>
-                    <select name="usuario">
+                    <select name="usuario" required>
                         ${optionsUsuarios}
                     </select>
-                    <textarea name="texto" rows="4" placeholder="Digite sua mensagem..."></textarea>
+                    <textarea name="texto" rows="4" placeholder="Digite sua mensagem..." required></textarea>
                     <button type="submit">Enviar</button>
                 </form>
                 <a href="/">Voltar</a>
@@ -248,37 +248,19 @@ servidor.get('/logout', (req, res) => {
 servidor.post('/adicionarUsuario', autenticarSessao, (req, res) => {
     const { nome, senha } = req.body;
 
+    // Validações
+    if (!nome || !senha) {
+        return res.send(`
+            <h1>Erro: Todos os campos são obrigatórios!</h1>
+            <a href="/registrar">Voltar</a>
+        `);
+    }
+
     const usuarioExistente = baseDeUsuarios.find(user => user.nome === nome);
     if (usuarioExistente) {
         return res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Erro</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        background-color: #f0f4f8;
-                        text-align: center;
-                        padding-top: 50px;
-                    }
-                    a {
-                        display: inline-block;
-                        margin-top: 20px;
-                        padding: 10px 20px;
-                        text-decoration: none;
-                        background: #007bff;
-                        color: white;
-                        border-radius: 5px;
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>Erro: Usuário já existe!</h1>
-                <a href="/registrar">Tentar novamente</a>
-            </body>
-            </html>
+            <h1>Erro: Usuário já existe!</h1>
+            <a href="/registrar">Voltar</a>
         `);
     }
 
@@ -289,6 +271,15 @@ servidor.post('/adicionarUsuario', autenticarSessao, (req, res) => {
 // Processa mensagens
 servidor.post('/novaMensagem', autenticarSessao, (req, res) => {
     const { texto, usuario } = req.body;
+
+    // Validações
+    if (!usuario || !texto.trim()) {
+        return res.send(`
+            <h1>Erro: Todos os campos são obrigatórios!</h1>
+            <a href="/chat">Voltar</a>
+        `);
+    }
+
     historicoDeMensagens.push({ usuario, texto });
     res.redirect('/chat');
 });
@@ -306,35 +297,8 @@ servidor.post('/login', (req, res) => {
     }
 
     res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Login Inválido</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    background-color: #f8d7da;
-                    color: #721c24;
-                    text-align: center;
-                    padding: 50px;
-                }
-                a {
-                    display: inline-block;
-                    margin-top: 20px;
-                    padding: 10px 20px;
-                    text-decoration: none;
-                    background: #f5c6cb;
-                    color: #721c24;
-                    border-radius: 5px;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>Login inválido!</h1>
-            <a href="/login">Tentar novamente</a>
-        </body>
-        </html>
+        <h1>Login inválido!</h1>
+        <a href="/login">Tentar novamente</a>
     `);
 });
 
