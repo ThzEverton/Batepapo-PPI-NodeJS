@@ -22,7 +22,7 @@ let baseDeUsuarios = [];
 let historicoDeMensagens = [];
 
 // Cadastro automático do administrador
-const admin = { nome: 'admin', senha: 'admin123' };
+const admin = { nome: 'admin', apelido: 'Administrador', senha: 'admin123' };
 baseDeUsuarios.push(admin);
 console.log('Administrador criado automaticamente:', admin);
 
@@ -104,7 +104,7 @@ servidor.get('/', autenticarSessao, (req, res) => {
             </style>
         </head>
         <body>
-            <h1>Bem-vindo, ${req.session.usuario.nome}!</h1>
+            <h1>Bem-vindo, ${req.session.usuario.apelido}!</h1>
             <p>Sua última visita foi: <strong>${ultimaVisita}</strong></p>
             <a href="/registrar">Registrar Usuário</a>
             <a href="/chat">Ir para o Chat</a>
@@ -113,6 +113,7 @@ servidor.get('/', autenticarSessao, (req, res) => {
         </html>
     `);
 });
+
 // Página de registro
 servidor.get('/registrar', autenticarSessao, (req, res) => {
     res.send(`
@@ -141,18 +142,11 @@ servidor.get('/registrar', autenticarSessao, (req, res) => {
                     padding: 10px;
                     width: 80%;
                 }
-                input:invalid {
-                    border-color: red;
-                }
                 a {
                     display: block;
                     margin: 10px auto;
                     text-decoration: none;
                     color: #007bff;
-                }
-                .error-message {
-                    color: red;
-                    font-size: 0.9em;
                 }
             </style>
         </head>
@@ -171,10 +165,40 @@ servidor.get('/registrar', autenticarSessao, (req, res) => {
     `);
 });
 
+// Processa o registro
+servidor.post('/adicionarUsuario', autenticarSessao, (req, res) => {
+    const { nome, apelido, senha, idade } = req.body;
+
+    // Validações
+    if (!nome || !apelido || !senha || !idade) {
+        return res.send(`
+            <h1>Erro: Todos os campos são obrigatórios!</h1>
+            <a href="/registrar">Voltar</a>
+        `);
+    }
+
+    const usuarioExistente = baseDeUsuarios.find(user => user.apelido === apelido);
+    if (usuarioExistente) {
+        return res.send(`
+            <h1>Erro: Apelido já está em uso!</h1>
+            <a href="/registrar">Voltar</a>
+        `);
+    }
+
+    baseDeUsuarios.push({ nome, apelido, senha, idade });
+    console.log('Usuário cadastrado:', { nome, apelido, idade });
+
+    res.redirect('/');
+});
+
 // Página de chat
 servidor.get('/chat', autenticarSessao, (req, res) => {
     const optionsUsuarios = baseDeUsuarios
-        .map(user => `<option value="${user.nome}">${user.nome}</option>`)
+        .map(user => `<option value="${user.apelido}">${user.apelido}</option>`)
+        .join('');
+
+    const mensagensHTML = historicoDeMensagens
+        .map(msg => `<p><strong>${msg.usuario}:</strong> ${msg.texto}</p>`)
         .join('');
 
     res.send(`
@@ -219,17 +243,13 @@ servidor.get('/chat', autenticarSessao, (req, res) => {
                 select, textarea, button {
                     padding: 10px;
                 }
-                a {
-                    text-decoration: none;
-                    color: #007bff;
-                }
             </style>
         </head>
         <body>
             <div class="container">
                 <h2>Bate-papo</h2>
                 <div class="chat-messages">
-                    ${historicoDeMensagens.map(msg => `<p><strong>${msg.usuario}:</strong> ${msg.texto}</p>`).join('')}
+                    ${mensagensHTML}
                 </div>
                 <form method="POST" action="/novaMensagem">
                     <label for="usuario">Selecionar usuário:</label>
@@ -246,42 +266,10 @@ servidor.get('/chat', autenticarSessao, (req, res) => {
     `);
 });
 
-// Logout
-servidor.get('/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.redirect('/login');
-    });
-});
-
-// Processa o registro
-servidor.post('/adicionarUsuario', autenticarSessao, (req, res) => {
-    const { nome, senha } = req.body;
-
-    // Validações
-    if (!nome || !senha) {
-        return res.send(`
-            <h1>Erro: Todos os campos são obrigatórios!</h1>
-            <a href="/registrar">Voltar</a>
-        `);
-    }
-
-    const usuarioExistente = baseDeUsuarios.find(user => user.nome === nome);
-    if (usuarioExistente) {
-        return res.send(`
-            <h1>Erro: Usuário já existe!</h1>
-            <a href="/registrar">Voltar</a>
-        `);
-    }
-
-    baseDeUsuarios.push({ nome, senha });
-    res.redirect('/');
-});
-
 // Processa mensagens
 servidor.post('/novaMensagem', autenticarSessao, (req, res) => {
     const { texto, usuario } = req.body;
 
-    // Validações
     if (!usuario || !texto.trim()) {
         return res.send(`
             <h1>Erro: Todos os campos são obrigatórios!</h1>
@@ -291,6 +279,13 @@ servidor.post('/novaMensagem', autenticarSessao, (req, res) => {
 
     historicoDeMensagens.push({ usuario, texto });
     res.redirect('/chat');
+});
+
+// Logout
+servidor.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/login');
+    });
 });
 
 // Página de erro para login inválido
