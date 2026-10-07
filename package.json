@@ -1,7 +1,7 @@
 {
   "name": "batepapo-ppi-nodejs",
   "version": "1.0.0",
-  "description": "Bate-Papo web",
+  "description": "Aplicação web acadêmica de bate-papo com autenticação, sessões e cookies.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -16,5 +16,10 @@
     "express": "^4.21.2",
     "express-session": "^1.18.1"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThzEverton/Batepapo-PPI-NodeJS.git"
+  }
 }
