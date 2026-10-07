@@ -1,12 +1,11 @@
 {
-  "name": "batepapo-ppi-",
+  "name": "batepapo-ppi-nodejs",
   "version": "1.0.0",
   "description": "Bate-Papo web",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js"
-   
   },
   "keywords": [],
   "author": "",
